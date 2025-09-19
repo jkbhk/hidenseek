@@ -1,4 +1,6 @@
-## HideNSeek allows the user to hide a file inside an image.
+## HideNSeek 
+
+A simple tool that allows the user to hide a file inside an image, designed to work offline in a single html file without requiring any external dependencies.
 
 ### How does this work?
         
