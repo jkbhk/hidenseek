@@ -1,0 +1,1408 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HideNSeek</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+            text-align: center;
+        }
+        h2 {
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background-color: #fff;
+            font-weight: bold;
+            border-bottom: 3px solid #4CAF50;
+            color: #2e7d32;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-family: monospace;
+            resize: vertical;
+        }
+        input[type="text"], input[type="password"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 250px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 5px;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.blue {
+            background-color: #2196F3;
+        }
+        button.blue:hover {
+            background-color: #0b7dda;
+        }
+        button.red {
+            background-color: #f44336;
+        }
+        button.red:hover {
+            background-color: #d32f2f;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        button:disabled:hover {
+            background-color: #cccccc;
+        }
+        .canvas-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .canvas-wrapper {
+            width: 48%;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        canvas {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .file-info, .image-info {
+            font-size: 14px;
+            margin: 10px 0;
+            background: #f1f8e9;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #7cb342;
+        }
+        .status {
+            margin: 15px 0;
+            font-style: italic;
+            color: #666;
+        }
+        .hash-info {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            word-break: break-all;
+            border-left: 4px solid #43a047;
+        }
+        .loading {
+            display: none;
+            margin: 10px 0;
+            color: #666;
+        }
+        .loading::before {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.3);
+            border-radius: 50%;
+            border-top-color: #4CAF50;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .step-indicator {
+            margin: 20px 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            list-style: none;
+        }
+        .step-indicator li {
+            flex: 1;
+            text-align: center;
+            padding: 10px 5px;
+            position: relative;
+            background-color: #e0e0e0;
+            color: #757575;
+            border-radius: 4px;
+            margin: 0 5px;
+        }
+        .step-indicator li.active {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            border: 2px solid #2e7d32;
+        }
+        .step-indicator li.completed {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+        .step-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .step-container.active {
+            border-left: 4px solid #4CAF50;
+        }
+        .step-container:not(.active) {
+            display: none;
+        }
+        .copy-btn {
+            background: #ddd;
+            color: #333;
+            border: none;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin-left: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        @media (max-width: 768px) {
+            .canvas-wrapper {
+                width: 100%;
+            }
+            .step-indicator {
+                flex-direction: column;
+            }
+            .step-indicator li {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Advanced File Encryption and Steganography Tool</h1>
+    
+    <div class="tabs">
+        <div class="tab active" data-tab="hide">Hide File in Image</div>
+        <div class="tab" data-tab="extract">Extract File from Image</div>
+    </div>
+    
+    <div class="tab-content active" id="hide-tab">
+        <div class="container">
+            <h2>Hide and Encrypt File in Image</h2>
+            
+            <ul class="step-indicator">
+                <li class="active" data-step="1">1. Select File</li>
+                <li data-step="2">2. Convert & Encrypt</li>
+                <li data-step="3">3. Hide in Image</li>
+                <li data-step="4">4. Download</li>
+            </ul>
+            
+            <!-- Step 1: File Selection -->
+            <div class="step-container active" id="step1">
+                <h3>Step 1: Select the File to Hide</h3>
+                
+                <div class="form-group">
+                    <label for="fileInput">Select any file:</label>
+                    <input type="file" id="fileInput">
+                    <div class="file-info" id="fileInfo"></div>
+                </div>
+                
+                <button id="nextStep1" class="blue">Continue</button>
+            </div>
+            
+            <!-- Step 2: Convert to Base64 and Encrypt -->
+            <div class="step-container" id="step2">
+                <h3>Step 2: Encrypt File with Primary Key</h3>
+                
+                <div class="form-group">
+                    <label for="primaryKey">Primary Secret Key:</label>
+                    <input type="password" id="primaryKey" placeholder="Enter primary secret key for encryption">
+                    <p style="font-size: 13px; color: #666; margin-top: 5px;">
+                        This key will encrypt your file. Anyone with this key can decrypt the file.
+                    </p>
+                </div>
+                
+                <button id="encryptFileBtn" class="blue">Encrypt File</button>
+                <button id="backToStep1" class="red">Back</button>
+                
+                <div class="loading" id="encryptLoading">Processing... (this may take a moment for large files)</div>
+                
+                <div class="status" id="encryptStatus"></div>
+                
+                <div id="base64Info" class="hash-info" style="display:none;">
+                    <strong>Base64 Length:</strong> <span id="base64Length">0</span> characters
+                </div>
+                
+                <div id="encryptedInfo" class="hash-info" style="display:none;">
+                    <strong>Encrypted Data Length:</strong> <span id="encryptedLength">0</span> characters
+                </div>
+            </div>
+            
+            <!-- Step 3: Select Image and Hide Data -->
+            <div class="step-container" id="step3">
+                <h3>Step 3: Hide Encrypted Data in Image</h3>
+                
+                <div class="form-group">
+                    <label for="coverImage">Select a cover image (PNG only):</label>
+                    <input type="file" id="coverImage" accept="image/png">
+                    <div class="image-info" id="imageInfo"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="secondaryKey">Secondary Secret Key:</label>
+                    <input type="password" id="secondaryKey" placeholder="Enter secondary key for steganography">
+                    <p style="font-size: 13px; color: #666; margin-top: 5px;">
+                        This key determines how your data is hidden in the image. Required to extract data later.
+                    </p>
+                </div>
+                
+                <button id="hideDataBtn" class="blue">Hide Data in Image</button>
+                <button id="backToStep2" class="red">Back</button>
+                
+                <div class="loading" id="hideLoading">Processing image... please wait</div>
+                
+                <div class="status" id="hideStatus"></div>
+                
+                <div class="canvas-container">
+                    <div class="canvas-wrapper" id="original-canvas-wrapper">
+                        <h4>Original Image</h4>
+                    </div>
+                    <div class="canvas-wrapper" id="stego-canvas-wrapper">
+                        <h4>Image with Hidden Data</h4>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 4: Download -->
+            <div class="step-container" id="step4">
+                <h3>Step 4: Download Image with Hidden Data</h3>
+                
+                <div class="status" id="downloadStatus">
+                    Your file has been successfully encrypted and hidden in the image.
+                </div>
+                
+                <div class="form-group">
+                    <label for="stegoFilename">Filename for the steganography image:</label>
+                    <input type="text" id="stegoFilename" value="stego_image.png">
+                </div>
+                
+                <button id="downloadStegoBtn" class="blue">Download Image</button>
+                <button id="startOverBtn" class="red">Start Over</button>
+                
+                <div class="hash-info">
+                    <p><strong>Important:</strong> To extract your hidden file later, you will need:</p>
+                    <ul>
+                        <li>This image file (don't resize or recompress it)</li>
+                        <li>The secondary key used for hiding data</li>
+                        <li>The primary key used for encryption</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content" id="extract-tab">
+        <div class="container">
+            <h2>Extract and Decrypt File from Image</h2>
+            
+            <ul class="step-indicator">
+                <li class="active" data-step="e1">1. Select Image</li>
+                <li data-step="e2">2. Extract Data</li>
+                <li data-step="e3">3. Decrypt & Download</li>
+            </ul>
+            
+            <!-- Extract Step 1: Image Selection -->
+            <div class="step-container active" id="stepE1">
+                <h3>Step 1: Select Image with Hidden Data</h3>
+                
+                <div class="form-group">
+                    <label for="stegoImage">Select the image with hidden data (PNG only):</label>
+                    <input type="file" id="stegoImage" accept="image/png">
+                    <div class="image-info" id="stegoImageInfo"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="extractSecondaryKey">Secondary Secret Key:</label>
+                    <input type="password" id="extractSecondaryKey" placeholder="Enter the secondary key used to hide data">
+                </div>
+                
+                <button id="nextStepE1" class="blue">Continue</button>
+            </div>
+            
+            <!-- Extract Step 2: Extract Encrypted Data -->
+            <div class="step-container" id="stepE2">
+                <h3>Step 2: Extract Encrypted Data</h3>
+                
+                <button id="extractDataBtn" class="blue">Extract Hidden Data</button>
+                <button id="backToStepE1" class="red">Back</button>
+                
+                <div class="loading" id="extractLoading">Extracting data from image...</div>
+                
+                <div class="status" id="extractStatus"></div>
+                
+                <div id="extractedInfo" class="hash-info" style="display:none;">
+                    <strong>Encrypted Data Length:</strong> <span id="extractedLength">0</span> characters
+                </div>
+                
+                <div class="canvas-container">
+                    <div class="canvas-wrapper" id="loaded-stego-canvas-wrapper">
+                        <h4>Loaded Image</h4>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Extract Step 3: Decrypt and Download -->
+            <div class="step-container" id="stepE3">
+                <h3>Step 3: Decrypt and Download File</h3>
+                
+                <div class="form-group">
+                    <label for="extractPrimaryKey">Primary Secret Key:</label>
+                    <input type="password" id="extractPrimaryKey" placeholder="Enter the primary key used for encryption">
+                </div>
+                
+                <button id="decryptDataBtn" class="blue">Decrypt & Prepare Download</button>
+                <button id="backToStepE2" class="red">Back</button>
+                
+                <div class="loading" id="decryptLoading">Decrypting data...</div>
+                
+                <div class="status" id="decryptStatus"></div>
+                
+                <div id="decryptedFileInfo" class="file-info" style="display:none;"></div>
+                
+                <div class="form-group" id="downloadFileContainer" style="display:none;">
+                    <button id="downloadFileBtn" class="blue">Download Extracted File</button>
+                    <button id="extractStartOverBtn" class="red">Start Over</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show active content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === tabId + '-tab') {
+                            content.classList.add('active');
+                        }
+                    });
+                    
+                    // Reset state when switching tabs
+                    if (tabId === 'hide') {
+                        // Reset hide tab state
+                        resetHideTabState();
+                        // Show first step
+                        showStep('step1');
+                    } else if (tabId === 'extract') {
+                        // Reset extract tab state
+                        resetExtractTabState();
+                        // Show first step
+                        showStep('stepE1');
+                    }
+                });
+            });
+            
+            // Function to reset hide tab state
+            function resetHideTabState() {
+                // Reset all data
+                originalFileData = null;
+                originalFileName = '';
+                originalFileType = '';
+                encryptedData = null;
+                base64Data = null;
+                originalImageData = null;
+                stegoImageData = null;
+                
+                // Reset form fields
+                document.getElementById('fileInput').value = '';
+                document.getElementById('primaryKey').value = '';
+                document.getElementById('coverImage').value = '';
+                document.getElementById('secondaryKey').value = '';
+                document.getElementById('stegoFilename').value = 'stego_image.png';
+                
+                // Reset info elements
+                document.getElementById('fileInfo').innerHTML = '';
+                document.getElementById('imageInfo').innerHTML = '';
+                document.getElementById('base64Info').style.display = 'none';
+                document.getElementById('encryptedInfo').style.display = 'none';
+                document.getElementById('encryptStatus').textContent = '';
+                document.getElementById('hideStatus').textContent = '';
+                document.getElementById('downloadStatus').textContent = '';
+                
+                // Reset step indicators
+                const indicators = document.querySelectorAll('#hide-tab .step-indicator li');
+                indicators.forEach(indicator => {
+                    indicator.classList.remove('active', 'completed');
+                });
+                // Set first step as active
+                document.querySelector('#hide-tab .step-indicator li[data-step="1"]').classList.add('active');
+                
+                // Clear canvases
+                if (origCtx && originalCanvas) {
+                    origCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
+                }
+                if (stegoCtx && stegoCanvas) {
+                    stegoCtx.clearRect(0, 0, stegoCanvas.width, stegoCanvas.height);
+                }
+            }
+            
+            // Function to reset extract tab state
+            function resetExtractTabState() {
+                // Reset all extraction data
+                extractedData = null;
+                decryptedData = null;
+                
+                // Reset form fields
+                document.getElementById('stegoImage').value = '';
+                document.getElementById('extractSecondaryKey').value = '';
+                document.getElementById('extractPrimaryKey').value = '';
+                
+                // Reset info elements
+                document.getElementById('stegoImageInfo').innerHTML = '';
+                document.getElementById('extractedInfo').style.display = 'none';
+                document.getElementById('extractStatus').textContent = '';
+                document.getElementById('decryptStatus').textContent = '';
+                document.getElementById('decryptedFileInfo').style.display = 'none';
+                document.getElementById('downloadFileContainer').style.display = 'none';
+                
+                // Reset step indicators
+                const indicators = document.querySelectorAll('#extract-tab .step-indicator li');
+                indicators.forEach(indicator => {
+                    indicator.classList.remove('active', 'completed');
+                });
+                // Set first step as active
+                document.querySelector('#extract-tab .step-indicator li[data-step="e1"]').classList.add('active');
+                
+                // Clear canvas
+                if (loadedStegoCtx && loadedStegoCanvas) {
+                    loadedStegoCtx.clearRect(0, 0, loadedStegoCanvas.width, loadedStegoCanvas.height);
+                }
+            }
+            
+            // Initialize step indicators
+            // Reset all step indicators
+            document.querySelectorAll('.step-indicator li').forEach(li => {
+                li.classList.remove('active', 'completed');
+            });
+                
+            // Set first step as active in both tabs
+            document.querySelector('#hide-tab .step-indicator li[data-step="1"]').classList.add('active');
+            document.querySelector('#extract-tab .step-indicator li[data-step="e1"]').classList.add('active');
+            
+            // Step navigation helpers
+            function showStep(stepId) {
+                document.querySelectorAll('.step-container').forEach(step => {
+                    step.classList.remove('active');
+                });
+                document.getElementById(stepId).classList.add('active');
+                
+                // Update step indicators
+                const stepNumber = stepId.includes('E') 
+                    ? stepId.replace('stepE', '') 
+                    : stepId.replace('step', '');
+                    
+                const isExtract = stepId.includes('E');
+                
+                // Select the correct step indicator list based on which tab we're in
+                const indicatorList = isExtract ? 
+                    document.querySelector('#extract-tab .step-indicator') :
+                    document.querySelector('#hide-tab .step-indicator');
+                    
+                const indicators = indicatorList.querySelectorAll('li');
+                
+                indicators.forEach(indicator => {
+                    const indicatorStep = isExtract 
+                        ? indicator.getAttribute('data-step').replace('e', '')
+                        : indicator.getAttribute('data-step');
+                        
+                    indicator.classList.remove('active', 'completed');
+                    if (parseInt(indicatorStep) < parseInt(stepNumber)) {
+                        indicator.classList.add('completed');
+                    } else if (parseInt(indicatorStep) === parseInt(stepNumber)) {
+                        indicator.classList.add('active');
+                    }
+                });
+            }
+            
+            // Global variables
+            let originalFileData = null;
+            let originalFileName = '';
+            let originalFileType = '';
+            let encryptedData = null;
+            let base64Data = null;
+            let originalImageData = null;
+            let stegoImageData = null;
+            let extractedData = null;
+            let decryptedData = null;
+            
+            // Canvas elements
+            const originalCanvas = document.createElement('canvas');
+            originalCanvas.id = 'originalCanvas';
+            document.getElementById('original-canvas-wrapper').appendChild(originalCanvas);
+            
+            const stegoCanvas = document.createElement('canvas');
+            stegoCanvas.id = 'stegoCanvas';
+            document.getElementById('stego-canvas-wrapper').appendChild(stegoCanvas);
+            
+            const loadedStegoCanvas = document.createElement('canvas');
+            loadedStegoCanvas.id = 'loadedStegoCanvas';
+            document.getElementById('loaded-stego-canvas-wrapper').appendChild(loadedStegoCanvas);
+            
+            const origCtx = originalCanvas.getContext('2d', { willReadFrequently: true });
+            const stegoCtx = stegoCanvas.getContext('2d', { willReadFrequently: true });
+            const loadedStegoCtx = loadedStegoCanvas.getContext('2d', { willReadFrequently: true });
+            
+            // Step 1: File Selection
+            document.getElementById('fileInput').addEventListener('change', function() {
+                const file = this.files[0];
+                if (!file) return;
+                
+                const fileInfo = document.getElementById('fileInfo');
+                fileInfo.innerHTML = `
+                    <strong>File:</strong> ${file.name}<br>
+                    <strong>Type:</strong> ${file.type || 'Unknown'}<br>
+                    <strong>Size:</strong> ${formatFileSize(file.size)}
+                `;
+                
+                // Store file info for later use
+                originalFileName = file.name;
+                originalFileType = file.type || 'application/octet-stream';
+            });
+            
+            // Navigation between steps
+            document.getElementById('nextStep1').addEventListener('click', function() {
+                const fileInput = document.getElementById('fileInput');
+                if (!fileInput.files || !fileInput.files[0]) {
+                    alert('Please select a file first');
+                    return;
+                }
+                
+                showStep('step2');
+            });
+            
+            document.getElementById('backToStep1').addEventListener('click', function() {
+                showStep('step1');
+            });
+            
+            document.getElementById('backToStep2').addEventListener('click', function() {
+                showStep('step2');
+            });
+            
+            // Extract tab navigation
+            document.getElementById('nextStepE1').addEventListener('click', function() {
+                const stegoImage = document.getElementById('stegoImage');
+                const extractSecondaryKey = document.getElementById('extractSecondaryKey');
+                
+                if (!stegoImage.files || !stegoImage.files[0]) {
+                    alert('Please select an image with hidden data');
+                    return;
+                }
+                
+                if (!extractSecondaryKey.value) {
+                    alert('Please enter the secondary key used for hiding data');
+                    return;
+                }
+                
+                showStep('stepE2');
+            });
+            
+            document.getElementById('backToStepE1').addEventListener('click', function() {
+                showStep('stepE1');
+            });
+            
+            document.getElementById('backToStepE2').addEventListener('click', function() {
+                showStep('stepE2');
+            });
+            
+            // Step 2: Convert and Encrypt File
+            document.getElementById('encryptFileBtn').addEventListener('click', async function() {
+                const fileInput = document.getElementById('fileInput');
+                const primaryKey = document.getElementById('primaryKey');
+                const encryptLoading = document.getElementById('encryptLoading');
+                const encryptStatus = document.getElementById('encryptStatus');
+                
+                if (!fileInput.files || !fileInput.files[0]) {
+                    alert('Please select a file first');
+                    return;
+                }
+                
+                if (!primaryKey.value) {
+                    alert('Please enter a primary secret key for encryption');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                
+                try {
+                    // Show loading indicator
+                    encryptLoading.style.display = 'block';
+                    encryptStatus.textContent = 'Converting file to Base64...';
+                    
+                    // Convert file to base64
+                    base64Data = await fileToBase64(file);
+                    document.getElementById('base64Length').textContent = base64Data.length;
+                    document.getElementById('base64Info').style.display = 'block';
+                    
+                    encryptStatus.textContent = 'Encrypting data...';
+                    
+                    // Create a payload with file metadata and base64 content
+                    const payload = JSON.stringify({
+                        fileName: originalFileName,
+                        fileType: originalFileType,
+                        data: base64Data
+                    });
+                    
+                    // Encrypt the data
+                    encryptedData = await encryptString(payload, primaryKey.value);
+                    
+                    document.getElementById('encryptedLength').textContent = encryptedData.length;
+                    document.getElementById('encryptedInfo').style.display = 'block';
+                    
+                    encryptStatus.textContent = 'File successfully encrypted! Proceed to the next step.';
+                    encryptLoading.style.display = 'none';
+                    
+                    // Auto-proceed to next step after a short delay
+                    setTimeout(() => showStep('step3'), 1000);
+                    
+                } catch (error) {
+                    encryptLoading.style.display = 'none';
+                    encryptStatus.textContent = 'Error: ' + error.message;
+                    console.error(error);
+                }
+            });
+            
+            // Convert file to base64
+            function fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        // Get the base64 string (remove the data URL prefix)
+                        const base64String = reader.result.split(',')[1];
+                        resolve(base64String);
+                    };
+                    reader.onerror = () => reject(new Error('Failed to read file'));
+                    reader.readAsDataURL(file);
+                });
+            }
+            
+            // Step 3: Load cover image
+            document.getElementById('coverImage').addEventListener('change', function() {
+                const file = this.files[0];
+                if (!file) return;
+                
+                // Only accept PNG
+                if (file.type !== 'image/png') {
+                    alert('Please select a PNG image. Other formats may lose data when saving.');
+                    this.value = '';
+                    return;
+                }
+                
+                const imageInfo = document.getElementById('imageInfo');
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Set canvas dimensions to match image
+                        originalCanvas.width = img.width;
+                        originalCanvas.height = img.height;
+                        stegoCanvas.width = img.width;
+                        stegoCanvas.height = img.height;
+                        
+                        // Draw the image on the canvas
+                        origCtx.drawImage(img, 0, 0);
+                        
+                        // Store the original image data
+                        originalImageData = origCtx.getImageData(0, 0, img.width, img.height);
+                        
+                        // Display image info
+                        imageInfo.innerHTML = `
+                            <strong>Image:</strong> ${file.name}<br>
+                            <strong>Dimensions:</strong> ${img.width} x ${img.height} pixels<br>
+                            <strong>Size:</strong> ${formatFileSize(file.size)}<br>
+                            <strong>Max data capacity:</strong> ~${Math.floor((img.width * img.height * 3) / 8 / 1024)} KB
+                        `;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // Hide data in image
+            document.getElementById('hideDataBtn').addEventListener('click', async function() {
+                const secondaryKey = document.getElementById('secondaryKey');
+                const hideLoading = document.getElementById('hideLoading');
+                const hideStatus = document.getElementById('hideStatus');
+                
+                if (!originalImageData) {
+                    alert('Please select a cover image first');
+                    return;
+                }
+                
+                if (!encryptedData) {
+                    alert('Please encrypt your data first');
+                    return;
+                }
+                
+                if (!secondaryKey.value) {
+                    alert('Please enter a secondary key for steganography');
+                    return;
+                }
+                
+                try {
+                    hideLoading.style.display = 'block';
+                    hideStatus.textContent = 'Converting encrypted data to binary...';
+                    
+                    // Prepare the data for hiding
+                    const binaryMessage = textToBinary(encryptedData);
+                    
+                    // Check if image can hold the data
+                    const maxBits = originalImageData.width * originalImageData.height * 3; // 3 channels (R,G,B) per pixel
+                    if (binaryMessage.length > maxBits) {
+                        throw new Error(`Image too small to hide this data. Need capacity for at least ${Math.ceil(binaryMessage.length / 8)} bytes.`);
+                    }
+                    
+                    hideStatus.textContent = 'Hiding data in image...';
+                    
+                    // Generate seed from secondary key
+                    const seed = await generateSeed(secondaryKey.value);
+                    
+                    // Create a copy of the image data
+                    stegoImageData = new ImageData(
+                        new Uint8ClampedArray(originalImageData.data),
+                        originalImageData.width,
+                        originalImageData.height
+                    );
+                    
+                    // Hide the data in the image
+                    hideData(stegoImageData, binaryMessage, seed);
+                    
+                    // Display the stego image
+                    stegoCtx.putImageData(stegoImageData, 0, 0);
+                    
+                    hideStatus.textContent = 'Data successfully hidden in image!';
+                    hideLoading.style.display = 'none';
+                    
+                    // Auto-proceed to next step after a short delay
+                    setTimeout(() => showStep('step4'), 1000);
+                    
+                } catch (error) {
+                    hideLoading.style.display = 'none';
+                    hideStatus.textContent = 'Error: ' + error.message;
+                    console.error(error);
+                }
+            });
+            
+            // Step 4: Download stego image
+            document.getElementById('downloadStegoBtn').addEventListener('click', function() {
+                if (!stegoImageData) {
+                    alert('No image with hidden data available');
+                    return;
+                }
+                
+                const stegoFilename = document.getElementById('stegoFilename').value || 'stego_image.png';
+                const downloadBtn = document.getElementById('downloadStegoBtn');
+                const originalBtnText = downloadBtn.textContent;
+                
+                // Create a temporary canvas to ensure we save at full quality
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = stegoCanvas.width;
+                tempCanvas.height = stegoCanvas.height;
+                const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+                
+                // Draw the stego image data to the temporary canvas
+                tempCtx.putImageData(stegoImageData, 0, 0);
+                
+                // Create download link
+                try {
+                    downloadBtn.disabled = true;
+                    downloadBtn.textContent = 'Downloading...';
+                    
+                    tempCanvas.toBlob(function(blob) {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = stegoFilename;
+                        document.body.appendChild(a);
+                        a.click();
+                        
+                        // Cleanup
+                        setTimeout(() => {
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(url);
+                            downloadBtn.textContent = 'Downloaded!';
+                            
+                            setTimeout(() => {
+                                downloadBtn.textContent = originalBtnText;
+                                downloadBtn.disabled = false;
+                            }, 2000);
+                        }, 500);
+                    }, 'image/png');
+                    
+                    document.getElementById('downloadStatus').textContent = 'Image downloaded successfully!';
+                } catch (err) {
+                    downloadBtn.disabled = false;
+                    downloadBtn.textContent = originalBtnText;
+                    document.getElementById('downloadStatus').textContent = 'Download failed: ' + err.message;
+                }
+            });
+            
+            // Start over button
+            document.getElementById('startOverBtn').addEventListener('click', function() {
+                resetHideTabState();
+                showStep('step1');
+            });
+            
+            // Extract Process - Step 1: Load stego image
+            document.getElementById('stegoImage').addEventListener('change', function() {
+                const file = this.files[0];
+                if (!file) return;
+                
+                // Only accept PNG for extraction
+                if (file.type !== 'image/png') {
+                    alert('Please select a PNG image. Other formats may have lost the hidden data.');
+                    this.value = '';
+                    return;
+                }
+                
+                const stegoImageInfo = document.getElementById('stegoImageInfo');
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Set canvas dimensions to match image
+                        loadedStegoCanvas.width = img.width;
+                        loadedStegoCanvas.height = img.height;
+                        
+                        // Draw the image on the canvas
+                        loadedStegoCtx.drawImage(img, 0, 0);
+                        
+                        // Display image info
+                        stegoImageInfo.innerHTML = `
+                            <strong>Image:</strong> ${file.name}<br>
+                            <strong>Dimensions:</strong> ${img.width} x ${img.height} pixels<br>
+                            <strong>Size:</strong> ${formatFileSize(file.size)}
+                        `;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // Extract Step 2: Extract data from image
+            document.getElementById('extractDataBtn').addEventListener('click', async function() {
+                const extractSecondaryKey = document.getElementById('extractSecondaryKey');
+                const extractLoading = document.getElementById('extractLoading');
+                const extractStatus = document.getElementById('extractStatus');
+                
+                if (!loadedStegoCanvas.width) {
+                    alert('Please select an image with hidden data first');
+                    return;
+                }
+                
+                if (!extractSecondaryKey.value) {
+                    alert('Please enter the secondary key used for hiding data');
+                    return;
+                }
+                
+                try {
+                    extractLoading.style.display = 'block';
+                    extractStatus.textContent = 'Extracting data from image...';
+                    
+                    // Get the image data from the canvas
+                    const imageData = loadedStegoCtx.getImageData(0, 0, loadedStegoCanvas.width, loadedStegoCanvas.height);
+                    
+                    // Generate seed from secondary key
+                    const seed = await generateSeed(extractSecondaryKey.value);
+                    
+                    // Extract the binary message
+                    const binaryMessage = extractData(imageData, seed);
+                    
+                    // Convert binary to text
+                    extractedData = binaryToText(binaryMessage);
+                    
+                    document.getElementById('extractedLength').textContent = extractedData.length;
+                    document.getElementById('extractedInfo').style.display = 'block';
+                    
+                    extractStatus.textContent = 'Data extracted successfully!';
+                    extractLoading.style.display = 'none';
+                    
+                    // Auto-proceed to next step after a short delay
+                    setTimeout(() => {
+                        showStep('stepE3');
+                    }, 1000);
+                    
+                } catch (error) {
+                    extractLoading.style.display = 'none';
+                    extractStatus.textContent = 'Error: ' + error.message;
+                    console.error(error);
+                }
+            });
+            
+            // Extract Step 3: Decrypt data
+            document.getElementById('decryptDataBtn').addEventListener('click', async function() {
+                const extractPrimaryKey = document.getElementById('extractPrimaryKey');
+                const decryptLoading = document.getElementById('decryptLoading');
+                const decryptStatus = document.getElementById('decryptStatus');
+                
+                if (!extractedData) {
+                    alert('No data has been extracted from the image');
+                    return;
+                }
+                
+                if (!extractPrimaryKey.value) {
+                    alert('Please enter the primary key used for encryption');
+                    return;
+                }
+                
+                try {
+                    decryptLoading.style.display = 'block';
+                    decryptStatus.textContent = 'Decrypting data...';
+                    
+                    // Decrypt the extracted data
+                    const decryptedString = await decryptString(extractedData, extractPrimaryKey.value);
+                    
+                    // Parse the payload
+                    const payload = JSON.parse(decryptedString);
+                    
+                    // Extract file metadata and content
+                    originalFileName = payload.fileName;
+                    originalFileType = payload.fileType;
+                    decryptedData = payload.data; // Base64 data
+                    
+                    const decryptedFileInfo = document.getElementById('decryptedFileInfo');
+                    decryptedFileInfo.innerHTML = `
+                        <strong>File:</strong> ${originalFileName}<br>
+                        <strong>Type:</strong> ${originalFileType}<br>
+                        <strong>Size:</strong> ~${formatFileSize(decryptedData.length * 0.75)} (estimated)
+                    `;
+                    decryptedFileInfo.style.display = 'block';
+                    
+                    document.getElementById('downloadFileContainer').style.display = 'block';
+                    
+                    decryptStatus.textContent = 'Data decrypted successfully!';
+                    decryptLoading.style.display = 'none';
+                    
+                } catch (error) {
+                    decryptLoading.style.display = 'none';
+                    decryptStatus.textContent = 'Error: ' + error.message;
+                    console.error(error);
+                }
+            });
+            
+            // Download extracted file
+            document.getElementById('downloadFileBtn').addEventListener('click', function() {
+                if (!decryptedData) {
+                    alert('No decrypted data available');
+                    return;
+                }
+                
+                try {
+                    // Convert base64 to blob
+                    const byteCharacters = atob(decryptedData);
+                    const byteArrays = [];
+                    
+                    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                        const slice = byteCharacters.slice(offset, offset + 512);
+                        
+                        const byteNumbers = new Array(slice.length);
+                        for (let i = 0; i < slice.length; i++) {
+                            byteNumbers[i] = slice.charCodeAt(i);
+                        }
+                        
+                        const byteArray = new Uint8Array(byteNumbers);
+                        byteArrays.push(byteArray);
+                    }
+                    
+                    const blob = new Blob(byteArrays, {type: originalFileType});
+                    const url = URL.createObjectURL(blob);
+                    
+                    // Create download link
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = originalFileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    // Visual feedback
+                    const downloadBtn = document.getElementById('downloadFileBtn');
+                    const originalText = downloadBtn.textContent;
+                    downloadBtn.textContent = 'Downloaded!';
+                    setTimeout(() => {
+                        downloadBtn.textContent = originalText;
+                    }, 2000);
+                    
+                    // Cleanup
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    }, 0);
+                    
+                    decryptStatus.textContent = 'File downloaded successfully!';
+                } catch (error) {
+                    decryptStatus.textContent = 'Download error: ' + error.message;
+                }
+            });
+            
+            // Extract start over button
+            document.getElementById('extractStartOverBtn').addEventListener('click', function() {
+                resetExtractTabState();
+                showStep('stepE1');
+            });
+            
+            // Format file size nicely
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Encrypt a string using AES-GCM with derived key
+            async function encryptString(plaintext, password) {
+                try {
+                    // Generate a random salt
+                    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+                    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+                    
+                    // Convert password to key using PBKDF2
+                    const keyMaterial = await window.crypto.subtle.importKey(
+                        "raw", 
+                        new TextEncoder().encode(password),
+                        { name: "PBKDF2" },
+                        false, 
+                        ["deriveBits", "deriveKey"]
+                    );
+                    
+                    const cryptoKey = await window.crypto.subtle.deriveKey(
+                        {
+                            name: "PBKDF2",
+                            salt: salt,
+                            iterations: 100000,
+                            hash: "SHA-256"
+                        },
+                        keyMaterial,
+                        { name: "AES-GCM", length: 256 },
+                        false,
+                        ["encrypt", "decrypt"]
+                    );
+                    
+                    // Encrypt the plaintext
+                    const encodedPlaintext = new TextEncoder().encode(plaintext);
+                    const encryptedData = await window.crypto.subtle.encrypt(
+                        {
+                            name: "AES-GCM",
+                            iv: iv
+                        },
+                        cryptoKey,
+                        encodedPlaintext
+                    );
+                    
+                    // Combine salt, iv, and encrypted data into a single array
+                    const resultArray = new Uint8Array(salt.length + iv.length + encryptedData.byteLength);
+                    resultArray.set(salt, 0);
+                    resultArray.set(iv, salt.length);
+                    resultArray.set(new Uint8Array(encryptedData), salt.length + iv.length);
+                    
+                    // Convert to Base64 for text storage
+                    return arrayBufferToBase64(resultArray);
+                    
+                } catch (error) {
+                    console.error('Encryption error:', error);
+                    throw new Error('Encryption failed: ' + error.message);
+                }
+            }
+            
+            // Decrypt a string using AES-GCM with derived key
+            async function decryptString(encryptedBase64, password) {
+                try {
+                    // Convert from Base64 to array buffer
+                    const encryptedArray = base64ToArrayBuffer(encryptedBase64);
+                    
+                    // Extract salt, IV, and encrypted data
+                    const salt = encryptedArray.slice(0, 16);
+                    const iv = encryptedArray.slice(16, 28);
+                    const encryptedData = encryptedArray.slice(28);
+                    
+                    // Convert password to key using PBKDF2
+                    const keyMaterial = await window.crypto.subtle.importKey(
+                        "raw", 
+                        new TextEncoder().encode(password),
+                        { name: "PBKDF2" },
+                        false, 
+                        ["deriveBits", "deriveKey"]
+                    );
+                    
+                    const cryptoKey = await window.crypto.subtle.deriveKey(
+                        {
+                            name: "PBKDF2",
+                            salt: salt,
+                            iterations: 100000,
+                            hash: "SHA-256"
+                        },
+                        keyMaterial,
+                        { name: "AES-GCM", length: 256 },
+                        false,
+                        ["encrypt", "decrypt"]
+                    );
+                    
+                    // Decrypt the data
+                    const decryptedData = await window.crypto.subtle.decrypt(
+                        {
+                            name: "AES-GCM",
+                            iv: iv
+                        },
+                        cryptoKey,
+                        encryptedData
+                    );
+                    
+                    // Convert decrypted data to string
+                    return new TextDecoder().decode(decryptedData);
+                    
+                } catch (error) {
+                    console.error('Decryption error:', error);
+                    throw new Error('Decryption failed. Incorrect key or corrupted data.');
+                }
+            }
+            
+            // Helper function to convert ArrayBuffer to Base64
+            function arrayBufferToBase64(buffer) {
+                let binary = '';
+                const bytes = new Uint8Array(buffer);
+                const len = bytes.byteLength;
+                
+                for (let i = 0; i < len; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                
+                return btoa(binary);
+            }
+            
+            // Helper function to convert Base64 to ArrayBuffer
+            function base64ToArrayBuffer(base64) {
+                const binary_string = atob(base64);
+                const len = binary_string.length;
+                const bytes = new Uint8Array(len);
+                
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binary_string.charCodeAt(i);
+                }
+                
+                return bytes;
+            }
+            
+            // Convert text to binary string
+            function textToBinary(text) {
+                let binary = '';
+                for (let i = 0; i < text.length; i++) {
+                    const charCode = text.charCodeAt(i);
+                    const binChar = charCode.toString(2).padStart(8, '0');
+                    binary += binChar;
+                }
+                return binary;
+            }
+            
+            // Convert binary string to text
+            function binaryToText(binary) {
+                let text = '';
+                for (let i = 0; i < binary.length; i += 8) {
+                    const byte = binary.substr(i, 8);
+                    const charCode = parseInt(byte, 2);
+                    text += String.fromCharCode(charCode);
+                }
+                return text;
+            }
+            
+            // Generate seed from secret key
+            async function generateSeed(key) {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(key);
+                const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return parseInt(hashArray.slice(0, 4).map(b => b.toString(16).padStart(2, '0')).join(''), 16);
+            }
+            
+            // Pseudo-random number generator using a seed
+            class PRNG {
+                constructor(seed) {
+                    this.seed = seed;
+                }
+                
+                // Generate the next random number between 0 and 1
+                next() {
+                    const a = 1664525;
+                    const c = 1013904223;
+                    const m = Math.pow(2, 32);
+                    
+                    this.seed = (a * this.seed + c) % m;
+                    return this.seed / m;
+                }
+                
+                // Get a random integer between min (inclusive) and max (inclusive)
+                nextInt(min, max) {
+                    return Math.floor(this.next() * (max - min + 1)) + min;
+                }
+            }
+            
+            // Hide binary message in image using LSB steganography
+            function hideData(imageData, binaryMessage, seed) {
+                const data = imageData.data;
+                const prng = new PRNG(seed);
+                
+                // First hide the message length (32 bits)
+                const msgLength = binaryMessage.length;
+                const lengthBinary = msgLength.toString(2).padStart(32, '0');
+                
+                // Create a list of pixel indices we can use (excluding alpha channel)
+                const pixelIndices = [];
+                for (let i = 0; i < data.length; i += 4) {
+                    pixelIndices.push(i); // R
+                    pixelIndices.push(i + 1); // G
+                    pixelIndices.push(i + 2); // B
+                    // Skip i+3 (alpha channel)
+                }
+                
+                // Shuffle the indices based on the seed
+                for (let i = pixelIndices.length - 1; i > 0; i--) {
+                    const j = prng.nextInt(0, i);
+                    [pixelIndices[i], pixelIndices[j]] = [pixelIndices[j], pixelIndices[i]];
+                }
+                
+                // Hide length prefix (32 bits)
+                for (let i = 0; i < 32; i++) {
+                    const pixelIdx = pixelIndices[i];
+                    data[pixelIdx] = (data[pixelIdx] & 0xFE) | parseInt(lengthBinary[i], 2);
+                }
+                
+                // Hide the actual message
+                for (let i = 0; i < binaryMessage.length; i++) {
+                    const pixelIdx = pixelIndices[i + 32];
+                    data[pixelIdx] = (data[pixelIdx] & 0xFE) | parseInt(binaryMessage[i], 2);
+                }
+            }
+            
+            // Extract binary message from image using LSB steganography
+            function extractData(imageData, seed) {
+                const data = imageData.data;
+                const prng = new PRNG(seed);
+                
+                // Create a list of pixel indices we can use (excluding alpha channel)
+                const pixelIndices = [];
+                for (let i = 0; i < data.length; i += 4) {
+                    pixelIndices.push(i); // R
+                    pixelIndices.push(i + 1); // G
+                    pixelIndices.push(i + 2); // B
+                    // Skip i+3 (alpha channel)
+                }
+                
+                // Shuffle the indices based on the seed
+                for (let i = pixelIndices.length - 1; i > 0; i--) {
+                    const j = prng.nextInt(0, i);
+                    [pixelIndices[i], pixelIndices[j]] = [pixelIndices[j], pixelIndices[i]];
+                }
+                
+                // Extract length prefix (32 bits)
+                let lengthBinary = '';
+                for (let i = 0; i < 32; i++) {
+                    const pixelIdx = pixelIndices[i];
+                    lengthBinary += data[pixelIdx] & 1;
+                }
+                
+                const msgLength = parseInt(lengthBinary, 2);
+                if (isNaN(msgLength) || msgLength <= 0 || msgLength > pixelIndices.length - 32) {
+                    throw new Error('Failed to extract data. Incorrect key or no data hidden in this image.');
+                }
+                
+                // Extract the actual message
+                let binaryMessage = '';
+                for (let i = 0; i < msgLength; i++) {
+                    const pixelIdx = pixelIndices[i + 32];
+                    binaryMessage += data[pixelIdx] & 1;
+                }
+                
+                return binaryMessage;
+            }
+        });
+    </script>
+</body>
+<footer>
+    <hr>
+    <p style="font-size: 0.9em; color: #555;">
+        &copy; 2025 HideNSeek.  |  No AI were put in jail in the making of this tool.
+    </p>
+</footer>
+</html>
